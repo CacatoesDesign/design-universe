@@ -1,0 +1,14 @@
+import { chromium } from 'playwright-core';
+const b = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH || '/opt/pw-browsers/chromium-1194/chrome-linux/chrome' });
+const p = await b.newPage({ viewport: { width: 1440, height: 900 } });
+await p.goto((process.env.E2E_URL || 'http://localhost:4175') + '/'); await p.waitForTimeout(1500);
+await p.getByRole('button', { name: 'Button', exact: true }).first().click(); await p.waitForTimeout(1200);
+await p.keyboard.press('+'); await p.waitForTimeout(150);
+await p.locator('.zone-hit').nth(2).click(); await p.waitForTimeout(1200);
+const zb = await p.locator('.zone-hit').nth(2).boundingBox(), sb = await p.locator('.sel-box').first().boundingBox();
+console.log('callout', await p.locator('.callout').count(), 'zone', JSON.stringify(zb), 'sel', JSON.stringify(sb));
+await p.keyboard.press('+'); await p.waitForTimeout(300);
+const sb2 = await p.locator('.sel-box').first().boundingBox(), r = await p.locator('.comp-center').boundingBox();
+console.log('after zoom sel', JSON.stringify(sb2), 'comp', JSON.stringify(r));
+await p.screenshot({ path: (process.env.E2E_SHOTS || 'e2e/shots') + '/zoom-comp.png' });
+await b.close();

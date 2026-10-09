@@ -1,0 +1,79 @@
+<style>
+  :root { color-scheme: light dark; }
+  body { margin: 0; font: 12px/1.45 Inter, system-ui, sans-serif; color: var(--figma-color-text, #1e1e1e); background: var(--figma-color-bg, #fff); }
+  main { padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+  h1 { margin: 0; font-size: 13px; font-weight: 600; }
+  .file { color: var(--figma-color-text-secondary, #757575); margin-top: 2px; }
+  .tip { padding: 10px 12px; border-radius: 8px; background: var(--figma-color-bg-brand-tertiary, #e5f4ff); color: var(--figma-color-text, #1e1e1e); }
+  .scopes { display: flex; flex-direction: column; gap: 6px; }
+  button { font: inherit; cursor: pointer; border-radius: 6px; padding: 8px 12px; text-align: left; border: 1px solid var(--figma-color-border, #e6e6e6); background: var(--figma-color-bg, #fff); color: inherit; display: flex; justify-content: space-between; gap: 8px; }
+  button:hover:not(:disabled) { background: var(--figma-color-bg-hover, #f5f5f5); }
+  button:disabled { opacity: .45; cursor: default; }
+  button.primary { background: var(--figma-color-bg-brand, #0d99ff); color: var(--figma-color-text-onbrand, #fff); border-color: transparent; justify-content: center; font-weight: 600; }
+  button .sub { color: var(--figma-color-text-secondary, #757575); }
+  label { display: flex; flex-direction: column; gap: 4px; color: var(--figma-color-text-secondary, #757575); }
+  input { font: inherit; padding: 6px 8px; border-radius: 6px; border: 1px solid var(--figma-color-border, #e6e6e6); background: var(--figma-color-bg, #fff); color: var(--figma-color-text, #1e1e1e); }
+  .bar { height: 4px; border-radius: 2px; background: var(--figma-color-bg-secondary, #f0f0f0); overflow: hidden; }
+  .bar i { display: block; height: 100%; width: 0; background: var(--figma-color-bg-brand, #0d99ff); transition: width .2s; }
+  .muted { color: var(--figma-color-text-secondary, #757575); }
+  .error { color: var(--figma-color-text-danger, #f24822); }
+  .result { display: flex; flex-direction: column; gap: 8px; }
+  ol { margin: 0; padding-left: 18px; }
+  [hidden] { display: none !important; }
+  @media (prefers-reduced-motion: reduce) { .bar i { transition: none; } }
+</style>
+<main>
+  <div><h1>DS Universe Scanner</h1><div class="file" id="file"></div></div>
+  <div class="tip"><b>Start small.</b> Select one component and scan it to try DS Universe. Then scan the page, then the whole file.</div>
+  <div class="scopes">
+    <button id="sel" data-scope="selection"><span>Scan selection</span><span class="sub" id="selN"></span></button>
+    <button data-scope="page"><span>Scan this page</span><span class="sub" id="pageN"></span></button>
+    <button data-scope="file"><span>Scan all pages</span><span class="sub">can take a few minutes</span></button>
+  </div>
+  <label id="urlBox" hidden>Figma file URL (optional, for live previews in DS Universe)
+    <input id="url" placeholder="https://www.figma.com/design/…" />
+  </label>
+  <div id="run" hidden><div class="bar"><i id="barI"></i></div><div class="muted" id="status"></div></div>
+  <div class="error" id="err" hidden></div>
+  <div class="result" id="result" hidden>
+    <div id="sum"></div>
+    <button class="primary" id="dl">Download library.json</button>
+    <ol class="muted">
+      <li>Open DS Universe (<code>npm run dev</code> in <code>app/</code>).</li>
+      <li>Click <b>Import…</b> in the top bar and pick the file.</li>
+    </ol>
+  </div>
+</main>
+<script>
+  const $ = id => document.getElementById(id);
+  let last = null, selCount = 0, running = false;
+  const busy = on => { running = on; document.querySelectorAll('[data-scope]').forEach(b => { b.disabled = on || (b.dataset.scope === 'selection' && !selCount); }); };
+  document.querySelectorAll('[data-scope]').forEach(b => b.onclick = () => {
+    $('err').hidden = true; $('result').hidden = true; $('run').hidden = false; $('barI').style.width = '2%'; $('status').textContent = 'Starting…'; busy(true);
+    parent.postMessage({ pluginMessage: { type: 'scan', scope: b.dataset.scope, fileUrl: $('url').value } }, '*');
+  });
+  $('dl').onclick = () => {
+    if (!last) return;
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([last.json], { type: 'application/json' }));
+    a.download = 'library-' + last.name.replace(/[^\w-]+/g, '-').replace(/^-|-$/g, '').toLowerCase() + '.json';
+    document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  };
+  onmessage = e => {
+    const m = e.data.pluginMessage; if (!m) return;
+    if (m.type === 'selection') {
+      selCount = m.count; $('file').textContent = m.file; $('pageN').textContent = m.page;
+      $('selN').textContent = m.count ? m.count + ' selected' : 'select a component first';
+      $('urlBox').hidden = m.hasKey; busy(running);
+    } else if (m.type === 'progress') {
+      $('status').textContent = m.text; $('barI').style.width = Math.max(2, Math.round(m.ratio * 100)) + '%';
+    } else if (m.type === 'done') {
+      last = m; busy(false); $('run').hidden = true; $('result').hidden = false;
+      const s = m.summary;
+      $('sum').innerHTML = `<b>${s.components}</b> components (${s.rendered} with a render tree), <b>${s.variables}</b> variables, <b>${s.screens}</b> screens, <b>${s.icons}</b> icons.` +
+        (s.key ? '' : '<br><span class="muted">No file key: live previews will be off. Paste the file URL above and scan again to enable them.</span>');
+    } else if (m.type === 'error') {
+      busy(false); $('run').hidden = true; $('err').hidden = false; $('err').textContent = m.text;
+    }
+  };
+</script>

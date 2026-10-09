@@ -1,0 +1,21 @@
+import { chromium } from 'playwright-core';
+const o = (process.env.E2E_SHOTS || 'e2e/shots');
+const b = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH || '/opt/pw-browsers/chromium-1194/chrome-linux/chrome' });
+const p = await b.newPage({ viewport: { width: 1440, height: 900 } });
+const errs = []; p.on('pageerror', e => errs.push(e.message));
+await p.goto((process.env.E2E_URL || 'http://localhost:4175') + '/'); await p.waitForTimeout(1200);
+await p.getByRole('button', { name: 'Dark', exact: true }).click();
+await p.locator('.search').fill('Button'); // pages repliées : la recherche les déplie
+await p.locator('.side-item', { hasText: /^Button\s*18/ }).click(); await p.waitForTimeout(1000);
+await p.locator('.zone-hit').nth(2).click(); await p.waitForTimeout(1200);
+const z = await p.locator('.zone-hit').nth(2).boundingBox(), s = await p.locator('.sel-box').first().boundingBox();
+console.log('aligned', Math.abs(z.x - s.x) < 1 && Math.abs(z.y - s.y) < 1);
+await p.screenshot({ path: o + '/dark-comp.png' });
+await p.keyboard.press('+'); await p.keyboard.press('+'); await p.waitForTimeout(300);
+const pad = await p.locator('.comp-surface').evaluate(e => { const r = e.getBoundingClientRect(), c = e.firstElementChild.getBoundingClientRect(); return Math.round(c.left - r.left); });
+console.log('screen padding after zoom', pad);
+await p.keyboard.press('0'); await p.keyboard.press('Escape'); await p.keyboard.press('ArrowUp'); await p.waitForTimeout(1300);
+await p.screenshot({ path: o + '/dark-pattern.png' });
+await p.getByRole('button', { name: 'Light', exact: true }).click(); await p.waitForTimeout(400);
+console.log('light bg', await p.locator('.comp-surface').evaluate(e => getComputedStyle(e).backgroundColor));
+console.log('errors', errs); await b.close();

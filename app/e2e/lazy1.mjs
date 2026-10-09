@@ -1,0 +1,13 @@
+import { chromium } from 'playwright-core';
+const b = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH || '/opt/pw-browsers/chromium-1194/chrome-linux/chrome' });
+const p = await b.newPage({ viewport: { width: 1440, height: 900 } });
+const errs = []; p.on('pageerror', e => errs.push(e.message));
+await p.route(/assets\/Builder-.*\.js$/, async r => { await new Promise(x => setTimeout(x, 1500)); r.continue(); });
+await p.goto((process.env.E2E_URL || 'http://localhost:4175') + '/'); await p.waitForTimeout(1200);
+await p.getByRole('tab', { name: 'Builder', exact: true }).click(); await p.waitForTimeout(500);
+const st = p.getByRole('status').filter({ hasText: 'Loading Builder' });
+console.log('loading visible', await st.isVisible());
+await p.screenshot({ path: (process.env.E2E_SHOTS || 'e2e/shots') + '/lazy-loading.png' });
+await p.waitForSelector('.react-flow__node', { timeout: 10000 });
+console.log('builder loaded, loading gone', (await st.count()) === 0);
+console.log('errors', errs); await b.close();

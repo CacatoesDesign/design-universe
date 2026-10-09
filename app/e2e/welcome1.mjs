@@ -1,0 +1,26 @@
+import { chromium } from 'playwright-core';
+// Accueil : ouvert avec ?welcome (les navigateurs pilotés ne le voient pas sinon), fermeture, raccourci Import, mémorisation.
+const b = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH || '/opt/pw-browsers/chromium-1194/chrome-linux/chrome' });
+const p = await b.newPage({ viewport: { width: 1440, height: 900 } });
+const errs = []; p.on('pageerror', e => errs.push(e.message));
+const W = ms => p.waitForTimeout(ms);
+const ok = (c, m) => console.log(c ? 'ok  ' : 'FAIL', m);
+const base = process.env.E2E_URL || 'http://localhost:4175';
+await p.goto(base + '/'); await W(1000);
+ok(await p.locator('.welcome').count() === 0, 'pas d\'accueil pour un navigateur piloté');
+await p.goto(base + '/?welcome'); await W(1000);
+const dlg = p.getByRole('dialog', { name: /living graph/ });
+ok(await dlg.count() === 1, 'accueil ouvert avec ?welcome');
+ok(await p.evaluate(() => document.activeElement?.textContent) === 'Start exploring', 'focus sur « Start exploring »');
+await p.screenshot({ path: (process.env.E2E_SHOTS || 'e2e/shots') + '/welcome.png' });
+await p.keyboard.press('Escape'); await W(300);
+ok(await dlg.count() === 0, 'Échap ferme');
+ok(await p.evaluate(() => JSON.parse(localStorage.getItem('ds-hints-seen') || '[]').includes('welcome')), 'vu, mémorisé');
+await p.getByRole('button', { name: 'Get started' }).click(); await W(400);
+ok(await dlg.count() === 1, '« Get started » rouvre');
+const chooser = p.waitForEvent('filechooser', { timeout: 3000 }).then(() => true).catch(() => false);
+await p.getByRole('button', { name: 'Import library…' }).click();
+ok(await chooser, 'Import library… ouvre le sélecteur de fichier');
+ok(await dlg.count() === 0, 'et ferme l\'accueil');
+console.log('errors', errs); if (errs.length) console.log('FAIL erreurs page');
+await b.close();

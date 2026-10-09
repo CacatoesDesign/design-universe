@@ -1,0 +1,211 @@
+{
+ "note": "Props SLOT relues via le MCP Figma (use_figma, lecture seule) le 2026-10-07 : componentPropertyDefinitions[*].preferredValues et description. Un futur scan les inclut directement (scan/figma/scan-page.js).",
+ "components": {
+  "7753:4779": {
+   "Items": {
+    "pref": [],
+    "desc": ""
+   }
+  },
+  "4317:11295": {
+   "Block": {
+    "pref": [],
+    "desc": ""
+   }
+  },
+  "4317:355": {
+   "Code": {
+    "pref": [],
+    "desc": ""
+   }
+  },
+  "4317:10976": {
+   "Content": {
+    "pref": [],
+    "desc": ""
+   }
+  },
+  "56:15608": {
+   "Avatars": {
+    "pref": [],
+    "desc": ""
+   },
+   "Avatars2": {
+    "pref": [],
+    "desc": ""
+   }
+  },
+  "6031:11534": {
+   "Slot": {
+    "pref": [],
+    "desc": ""
+   }
+  },
+  "524:503": {
+   "Slot": {
+    "pref": [],
+    "desc": ""
+   }
+  },
+  "2194:14984": {
+   "Slot": {
+    "pref": [],
+    "desc": ""
+   },
+   "Slot 2": {
+    "pref": [],
+    "desc": ""
+   }
+  },
+  "124:8256": {
+   "Title2": {
+    "pref": [],
+    "desc": ""
+   }
+  },
+  "9762:903": {
+   "Slot": {
+    "pref": [],
+    "desc": ""
+   }
+  },
+  "348:13221": {
+   "Cards": {
+    "pref": [],
+    "desc": ""
+   }
+  },
+  "348:14431": {
+   "Slot": {
+    "pref": [],
+    "desc": ""
+   }
+  },
+  "348:13407": {
+   "Cards": {
+    "pref": [],
+    "desc": ""
+   }
+  },
+  "348:14983": {
+   "Card Grid": {
+    "pref": [],
+    "desc": ""
+   }
+  },
+  "348:13347": {
+   "Card Grid": {
+    "pref": [],
+    "desc": ""
+   }
+  },
+  "348:15147": {
+   "Column": {
+    "pref": [],
+    "desc": ""
+   }
+  },
+  "348:13517": {
+   "Slot": {
+    "pref": [],
+    "desc": ""
+   },
+   "Card Grid": {
+    "pref": [],
+    "desc": ""
+   }
+  },
+  "348:13474": {
+   "Text Content Flow": {
+    "pref": [],
+    "desc": ""
+   }
+  },
+  "348:15101": {
+   "Text Content Flow": {
+    "pref": [],
+    "desc": ""
+   }
+  },
+  "6062:12592": {
+   "Slot": {
+    "pref": [],
+    "desc": ""
+   }
+  },
+  "321:11357": {
+   "Slot": {
+    "pref": [],
+    "desc": ""
+   },
+   "Title": {
+    "pref": [],
+    "desc": ""
+   }
+  },
+  "157:10352": {
+   "Slot": {
+    "pref": [],
+    "desc": ""
+   }
+  },
+  "322:9321": {
+   "Slot": {
+    "pref": [],
+    "desc": ""
+   }
+  },
+  "480:6149": {
+   "Slot": {
+    "pref": [],
+    "desc": ""
+   }
+  },
+  "315:32700": {
+   "Slot": {
+    "pref": [],
+    "desc": ""
+   }
+  },
+  "6062:16211": {
+   "Slot": {
+    "pref": [],
+    "desc": ""
+   }
+  },
+  "2142:11380": {
+   "Body2": {
+    "pref": [],
+    "desc": ""
+   }
+  },
+  "7753:4465": {
+   "Body": {
+    "pref": [],
+    "desc": ""
+   }
+  },
+  "9762:720": {
+   "Slot": {
+    "pref": [],
+    "desc": ""
+   }
+  },
+  "3729:13362": {
+   "Slot": {
+    "pref": [],
+    "desc": ""
+   }
+  },
+  "9762:696": {
+   "Slot": {
+    "pref": [],
+    "desc": ""
+   },
+   "Slot 2": {
+    "pref": [],
+    "desc": ""
+   }
+  }
+ }
+}

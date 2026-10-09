@@ -1,0 +1,116 @@
+{
+  "fileKey": "",
+  "fileName": "Simple Design System",
+  "scannedAt": "2026-10-07",
+  "files": [
+    "failures.json",
+    "icons-page.json",
+    "page-accordion-1.json",
+    "page-ai-chat-1.json",
+    "page-avatars-1.json",
+    "page-buttons-1.json",
+    "page-calendar-1.json",
+    "page-cards-1.json",
+    "page-dialog-1.json",
+    "page-forms-1.json",
+    "page-foundations-1.json",
+    "page-inputs-1.json",
+    "page-menu-1.json",
+    "page-navigation-1.json",
+    "page-notification-1.json",
+    "page-pagination-1.json",
+    "page-sections-1.json",
+    "page-tabs-1.json",
+    "page-tags-1.json",
+    "page-text-1.json",
+    "page-tooltip-1.json",
+    "page-utilities-1.json",
+    "screens-composition-guide.json",
+    "screens-examples.json",
+    "vars.json",
+    "manifest.json"
+  ],
+  "pages": {
+    "Accordion": {
+      "count": 2,
+      "scanned": 2
+    },
+    "AI Chat": {
+      "count": 6,
+      "scanned": 6
+    },
+    "Avatars": {
+      "count": 3,
+      "scanned": 3
+    },
+    "Buttons": {
+      "count": 4,
+      "scanned": 4
+    },
+    "Calendar": {
+      "count": 5,
+      "scanned": 5
+    },
+    "Cards": {
+      "count": 7,
+      "scanned": 7
+    },
+    "Dialog": {
+      "count": 2,
+      "scanned": 2
+    },
+    "Forms": {
+      "count": 7,
+      "scanned": 7
+    },
+    "Foundations": {
+      "count": 0,
+      "scanned": 0
+    },
+    "Inputs": {
+      "count": 12,
+      "scanned": 12
+    },
+    "Menu": {
+      "count": 6,
+      "scanned": 6
+    },
+    "Navigation": {
+      "count": 4,
+      "scanned": 4
+    },
+    "Notification": {
+      "count": 1,
+      "scanned": 1
+    },
+    "Pagination": {
+      "count": 6,
+      "scanned": 6
+    },
+    "Sections": {
+      "count": 24,
+      "scanned": 24
+    },
+    "Tabs": {
+      "count": 2,
+      "scanned": 2
+    },
+    "Tags": {
+      "count": 3,
+      "scanned": 3
+    },
+    "Text": {
+      "count": 18,
+      "scanned": 18
+    },
+    "Tooltip": {
+      "count": 1,
+      "scanned": 1
+    },
+    "Utilities": {
+      "count": 3,
+      "scanned": 3
+    }
+  },
+  "failures": []
+}

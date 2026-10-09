@@ -1,0 +1,23 @@
+import { chromium } from 'playwright-core';
+const b = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH || '/opt/pw-browsers/chromium-1194/chrome-linux/chrome' });
+const p = await b.newPage({ viewport: { width: 1440, height: 900 } });
+const errs = []; p.on('pageerror', e => errs.push(e.message));
+const W = ms => p.waitForTimeout(ms);
+const ok = (k, v) => console.log((v ? 'OK  ' : 'FAIL') + ' ' + k);
+await p.goto((process.env.E2E_URL || 'http://localhost:4175') + '/'); await W(1500);
+await p.locator('.dr-step', { hasText: 'Library' }).click(); await W(1600);
+const lib = p.locator('.level:has(.react-flow__node-lib)');
+const pos = await lib.locator('.react-flow__node-lib, .react-flow__node-grouphead, .react-flow__node-colhead').evaluateAll(ns => ns.map(n => { const m = /translate\(([-\d.]+)px, ?([-\d.]+)px\)/.exec(n.style.transform); return { id: n.dataset.id, x: +m[1], y: +m[2], w: n.offsetWidth, h: n.offsetHeight }; }));
+let ov = []; for (let i = 0; i < pos.length; i++) for (let j = i + 1; j < pos.length; j++) { const a = pos[i], c = pos[j]; if (a.x < c.x + c.w && c.x < a.x + a.w && a.y < c.y + c.h && c.y < a.y + a.h) ov.push(a.id + ' / ' + c.id); }
+ok(`no overlaps among ${pos.length} nodes`, ov.length === 0); if (ov.length) console.log(ov.slice(0, 5));
+ok('rest edges = current only', (await lib.locator('.react-flow__edge').count()) > 0);
+console.log('rest edges', await lib.locator('.react-flow__edge').count(), 'group heads', await lib.locator('.lib-grouphead').count());
+await p.screenshot({ path: (process.env.E2E_SHOTS || 'e2e/shots') + '/9-library-open.png' });
+await lib.locator('.zoombar').getByRole('button', { name: /Fit/ }).click(); await W(600);
+await p.screenshot({ path: (process.env.E2E_SHOTS || 'e2e/shots') + '/10-library-fit.png' });
+await lib.locator('.lib-filter button', { hasText: 'Cards' }).click(); await W(900);
+await lib.locator('.zoombar').getByRole('button', { name: /Fit/ }).click(); await W(600);
+await lib.locator('.react-flow__node-lib', { hasText: 'Pricing Card' }).hover(); await W(600);
+console.log('hover edges', await lib.locator('.react-flow__edge').count());
+await p.screenshot({ path: (process.env.E2E_SHOTS || 'e2e/shots') + '/11-library-cards-hover.png' });
+console.log('errors', errs); await b.close();

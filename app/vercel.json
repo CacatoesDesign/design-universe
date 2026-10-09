@@ -1,0 +1,3 @@
+{
+  "rewrites": [{ "source": "/figma-api/:path*", "destination": "/api/figma?path=:path*" }]
+}

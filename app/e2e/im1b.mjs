@@ -1,0 +1,12 @@
+import { chromium } from 'playwright-core';
+const b = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH || '/opt/pw-browsers/chromium-1194/chrome-linux/chrome' });
+const p = await b.newPage({ viewport: { width: 1440, height: 900 } });
+const W = ms => p.waitForTimeout(ms);
+const drift = () => p.evaluate(() => document.getAnimations().filter(a => a.effect?.target?.classList?.contains('amb-glow')).length);
+await p.goto((process.env.E2E_URL || 'http://localhost:4175') + '/'); await W(1200);
+console.log('repos : dérive', await drift());
+await p.locator('.zp-btn').click(); await p.locator('.zp-pop button').nth(3).click(); await W(800);
+const g = await p.locator('.amb-glow').evaluate(e => getComputedStyle(e).transform);
+console.log('ciblé : dérive', await drift(), '· transform glow', g);
+await p.keyboard.press('Escape'); await W(400); console.log('retour repos : dérive', await drift());
+await b.close();

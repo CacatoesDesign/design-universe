@@ -1,0 +1,26 @@
+import { chromium } from 'playwright-core';
+import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+// Lib sans couches (champ layers retiré) : la vue Library doit retomber sur les colonnes par profondeur.
+const here = dirname(fileURLToPath(import.meta.url));
+const lib = JSON.parse(readFileSync(join(here, '../src/data/library.json'), 'utf8')); delete lib.layers;
+const shots = process.env.E2E_SHOTS || 'e2e/shots'; mkdirSync(shots, { recursive: true });
+const noLayer = join(shots, 'nolayer.json'); writeFileSync(noLayer, JSON.stringify(lib));
+const b = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH || '/opt/pw-browsers/chromium-1194/chrome-linux/chrome' });
+const p = await b.newPage({ viewport: { width: 1440, height: 900 } });
+const errs = []; p.on('pageerror', e => errs.push(e.message));
+const ok = (k, v) => console.log((v ? 'OK  ' : 'FAIL') + ' ' + k);
+await p.goto((process.env.E2E_URL || 'http://localhost:4175') + '/'); await p.waitForTimeout(1200);
+await p.locator('.dr-step', { hasText: 'Library' }).click(); await p.waitForTimeout(1400);
+ok('SDS legend = system layers', (await p.locator('.legend').innerText()).includes('system layers'));
+await p.locator('input[type=file][accept*="json"]').first().setInputFiles(noLayer); await p.waitForTimeout(1200);
+await p.locator('.dr-step', { hasText: 'Library' }).click(); await p.waitForTimeout(1400);
+const leg = await p.locator('.legend').innerText(), heads = await p.locator('.lib-colhead').allTextContents();
+ok('layers declared but unused → depth legend: ' + heads.slice(0, 2).join(', '), leg.includes('nesting depth') && heads[0].startsWith('Base'));
+await p.goto((process.env.E2E_URL || 'http://localhost:4175') + '/'); await p.waitForTimeout(1000);
+await p.getByRole('tab', { name: 'Builder', exact: true }).click(); await p.waitForTimeout(1200);
+await p.getByRole('button', { name: 'Navbar · home' }).click(); await p.waitForTimeout(800);
+const st = await p.evaluate(() => { const k = Object.keys(localStorage).find(x => x.startsWith('ds-graph-builder-v1:')); return JSON.parse(localStorage.getItem(k)).nodes.filter(n => n.id === 'l1' || n.id === 'l2').map(n => n.data.vprops.State + ':' + n.data.texts[Object.keys(n.data.texts)[0]]); });
+ok('nav pills requested state = scanned state: ' + st.join(', '), st.every(s => s.startsWith('Default')));
+console.log('errors', errs); await b.close();

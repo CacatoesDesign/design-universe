@@ -1,0 +1,21 @@
+import { chromium } from 'playwright-core';
+const b = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH || '/opt/pw-browsers/chromium-1194/chrome-linux/chrome' });
+const p = await b.newPage({ viewport: { width: 1440, height: 900 } });
+const errs = []; p.on('pageerror', e => errs.push(e.message));
+const W = ms => p.waitForTimeout(ms);
+const live = sel => p.evaluate(s => [...document.querySelectorAll(s + ' .pulse-dot')].filter(c => +c.getAttribute('opacity') > 0).length, sel);
+await p.goto((process.env.E2E_URL || 'http://localhost:4175') + '/'); await W(1200);
+await p.keyboard.press('ArrowUp'); await p.keyboard.press('ArrowUp'); await W(1800);
+const n = await p.locator('.level[data-state="active"] .react-flow__node-ctx').nth(1).boundingBox();
+await p.mouse.move(n.x + n.width / 2, n.y + 20); await W(80); console.log("pendant le survol", await live(".level[data-state=\"active\"]"), "dim", await p.locator(".level[data-state=\"active\"] .react-flow__node.dim").count()); await p.mouse.move(300, 880); // survol bref
+await W(400); console.log('survol bref : impulsions encore en vol', await live('.level[data-state="active"]'));
+await W(1200); console.log('après 1,6 s : impulsions', await live('.level[data-state="active"]'));
+await p.getByRole('tab', { name: 'Builder' }).click(); await W(1500);
+const nodes = p.locator('.builder .react-flow__node');
+await nodes.nth(0).click(); await W(150); console.log('sélection : impulsions', await live('.builder'));
+await W(1500); console.log('sélection, 1,6 s après', await live('.builder'));
+const bb = await nodes.nth(4).boundingBox(); await p.mouse.move(bb.x + bb.width / 2, bb.y + bb.height / 2); await W(150);
+const during = await live('.builder'); console.log('survol autre node : impulsions', during);
+await p.mouse.move(bb.x + bb.width / 2, 880); await W(150);
+const after = await live('.builder'); console.log('fin du survol (sélection inchangée) : impulsions', after, after <= during ? '→ pas de rejouée' : '→ REJOUÉE');
+console.log('errors', errs); await b.close();

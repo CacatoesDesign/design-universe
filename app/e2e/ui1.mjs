@@ -1,0 +1,41 @@
+import { chromium } from 'playwright-core';
+const o = (process.env.E2E_SHOTS || 'e2e/shots');
+const b = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH || '/opt/pw-browsers/chromium-1194/chrome-linux/chrome' });
+const ctx = await b.newContext({ viewport: { width: 1440, height: 900 } });
+const p = await ctx.newPage();
+const errs = []; p.on('pageerror', e => errs.push(e.message));
+const W = ms => p.waitForTimeout(ms);
+await p.goto((process.env.E2E_URL || 'http://localhost:4175') + '/'); await W(1200);
+console.log('stage height', await p.locator('.stage').first().evaluate(e => e.clientHeight), '/ 900');
+console.log('zonebar present', await p.locator('.zonebar').count(), '· shortcuts on screen', await p.locator('.shortcuts').count());
+console.log('hint visible first time', await p.locator('.level[data-state="active"] .hint').first().evaluate(e => getComputedStyle(e).opacity));
+await p.locator('.zp-btn').click(); await W(200);
+console.log('picker items', await p.locator('.zp-pop button').count());
+await p.locator('.zp-pop button').nth(2).click(); await W(600);
+console.log('picker label', await p.locator('.zp-btn').innerText(), '· sel-box', await p.locator('.sel-box').count());
+await p.keyboard.press('ArrowRight'); await W(300); console.log('after →', await p.locator('.zp-btn').innerText());
+await p.keyboard.press('?'); await W(200); console.log('help rows', await p.locator('.sc-row').count());
+await p.screenshot({ path: o + '/ui1-help.png' });
+await p.keyboard.press('Escape'); await W(200); console.log('help closed', await p.locator('.sc-pop').count());
+{ const r = await p.evaluate(() => ({ axes: document.querySelectorAll('.variant-pill .axis').length, open: document.querySelectorAll('.variant-pill .vseg').length, vals: [...document.querySelectorAll('.variant-pill .axis-val')].map(e => e.textContent.trim()) }));
+  console.log(r.axes > 0 && r.open === 0 && r.vals.length === r.axes && r.vals.every(Boolean) ? 'ok  ' : 'FAIL', 'barre repliée au départ (icône + valeur)', JSON.stringify(r)); }
+await p.locator('.variant-pill .axis[aria-label="Variant"] .axis-toggle').click(); await W(500);
+console.log((await p.locator('.variant-pill .vseg').count()) === 1 ? 'ok  ' : 'FAIL', 'clic sur l\'icône Variant : cet axe seul se déplie');
+await p.locator('.variant-pill .variant-bar button', { hasText: 'Neutral' }).click(); await W(500);
+console.log('variant switched', await p.locator('.variant-pill .variant-bar button[aria-pressed="true"]').first().innerText());
+await W(900); console.log('swap anim', await p.locator('.level[data-state="active"] .comp-surface.swap').count(), '· thumb on pressed', await p.evaluate(() => { const a = document.querySelector('.variant-pill .vseg'); const t = a.querySelector('.thumb').getBoundingClientRect(), b = a.querySelector('button[aria-pressed="true"]').getBoundingClientRect(); return Math.abs(t.left - b.left) < 2 && Math.abs(t.width - b.width) < 2; }));
+{ const r = await p.evaluate(() => { const st = document.querySelector('.level[data-state="active"] .comp-wrap').getBoundingClientRect(), v = document.querySelector('.variant-pill').getBoundingClientRect(), z = document.querySelector('.level[data-state="active"] .zoom-dock').getBoundingClientRect(); return { bottom: Math.round(st.bottom - v.bottom), zoomTopLeft: z.top - st.top < 80 && z.left - st.left < 40 }; });
+  console.log(r.bottom >= 8 && r.bottom <= 24 && r.zoomTopLeft ? 'ok  ' : 'FAIL', 'variantes seules en bas, zoom en haut à gauche', JSON.stringify(r)); }
+await p.locator('.zone-hit[title^="Label"]').first().click(); await W(400);
+await p.locator('.variant-pill .axis[aria-label="Size"] .axis-toggle').click(); await W(300);
+await p.keyboard.press('Escape'); await W(300);
+{ const r = await p.evaluate(() => ({ open: document.querySelectorAll('.variant-pill .vseg').length, sel: !!document.querySelector('.level[data-state="active"] .sel-box') }));
+  console.log(r.open === 0 && r.sel ? 'ok  ' : 'FAIL', 'Échap replie la barre sans désélectionner la zone', JSON.stringify(r)); }
+await p.locator('.variant-pill .axis[aria-label="Size"] .axis-toggle').click(); await W(300);
+await p.mouse.click(700, 300); await W(400);
+console.log((await p.locator('.variant-pill .vseg').count()) === 0 ? 'ok  ' : 'FAIL', 'clic hors de la barre : repliée');
+await p.keyboard.press('Escape'); await W(400);
+await p.screenshot({ path: o + '/ui1.png' });
+await p.reload(); await W(1200);
+console.log('hint after reload', await p.locator('.level[data-state="active"] .hint').first().evaluate(e => getComputedStyle(e).opacity));
+console.log('errors', errs); await b.close();
