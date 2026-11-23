@@ -8,6 +8,8 @@ cd .. && npm run build && npx vite preview --port 4175 --strictPort   # in anoth
 node e2e/run-all.mjs               # whole suite; or: node e2e/run-all.mjs slots1 logic1
 ```
 
+Port 4175 is reserved for this preview. `npm run dev` is separate: it uses Vite's default port (usually 5173) and moves to the next free port if that one is taken. `--strictPort` makes the suite fail if 4175 is already in use, instead of silently attaching to another server.
+
 Environment variables:
 - `CHROMIUM_PATH`: Chromium or Chrome executable. Defaults to the one in Claude Code cloud sessions (`/opt/pw-browsers/…`). On a Mac, for example: `/Applications/Google Chrome.app/Contents/MacOS/Google Chrome`.
 - `E2E_URL`: app address (default `http://localhost:4175`).

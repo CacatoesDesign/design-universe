@@ -21,10 +21,12 @@ The demo library is Figma's [Simple Design System](https://github.com/figma/sds)
 git clone <this repo>
 cd app
 npm install
-npm run dev          # http://localhost:5173, opens on the demo library
+npm run dev
 ```
 
 Requirements: Node 20+.
+
+When the server is ready, Vite prints a local URL. Open that address: the demo library loads there. It is usually `http://localhost:5173`. If that port is already taken, Vite chooses the next free one and prints it. The project does not pin a port, so use the URL from this run rather than a bookmark from an earlier one.
 
 ## Use your own library
 
@@ -47,11 +49,13 @@ The token is only read by the dev server proxy and never sent to the browser. Yo
 ## Scripts (from `app/`)
 
 ```bash
-npm run dev            # development
+npm run dev            # development; open the URL Vite prints
 npm run build          # production build in dist/
 npx tsc -b && npx oxlint
-node e2e/run-all.mjs   # Playwright regression suite (against `npx vite preview --port 4175`)
+node e2e/run-all.mjs   # Playwright, against a separate preview on port 4175
 ```
+
+`npm run dev` is the app. Port 4175 is only the preview server the regression suite expects, so the tests do not share the dev server's port. See [`app/e2e/README.md`](app/e2e/README.md).
 
 More details on features and architecture: [`app/README.md`](app/README.md).
 

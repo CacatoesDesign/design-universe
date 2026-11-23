@@ -5,9 +5,11 @@ Front-end app (Vite + React + TypeScript) that turns a Figma library into a navi
 ```bash
 cd app
 npm install
-npm run dev        # http://localhost:5173
+npm run dev
 npm run build      # production build in dist/
 ```
+
+`npm run dev` prints the local URL when Vite is ready. Open that address. It is usually `http://localhost:5173`; if the port is already taken, Vite picks the next free port and prints the new URL. Nothing in the app hardcodes a dev port.
 
 ## What the app does
 
